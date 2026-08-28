@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Year in Motion — Rive Test Harness</title>
+<style>
+  :root { --bg:#0e0e0f; --panel:#1a1a1c; --line:#2e2e32; --fg:#e8e8ea; --mut:#9a9aa2; --ok:#4ade80; --err:#f87171; --warn:#fbbf24; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg);
+         font:13px/1.5 ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  .wrap { display:flex; gap:20px; padding:20px; align-items:flex-start; flex-wrap:wrap; }
+  .stage { background:#000; border:1px solid var(--line); border-radius:12px; overflow:hidden;
+           flex:0 0 auto; position:relative; }
+  canvas { display:block; width:375px; height:812px; }
+  .panel { flex:1 1 340px; min-width:320px; max-width:520px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:10px;
+          padding:14px; margin-bottom:12px; }
+  h1 { font-size:15px; margin:0 0 4px; }
+  h2 { font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--mut);
+       margin:0 0 10px; font-weight:600; }
+  .sub { color:var(--mut); font-size:12px; margin:0 0 14px; }
+  .row { display:flex; gap:8px; align-items:center; margin-bottom:8px; }
+  .row label { flex:0 0 96px; color:var(--mut); font-size:12px; }
+  input[type=text], input[type=number], input[type=url] {
+    flex:1; min-width:0; background:#0b0b0c; border:1px solid var(--line); color:var(--fg);
+    border-radius:6px; padding:6px 8px; font:inherit; }
+  input[type=color] { width:44px; height:30px; padding:0; border:1px solid var(--line);
+    background:#0b0b0c; border-radius:6px; }
+  input[type=file] { flex:1; min-width:0; font-size:11px; color:var(--mut); }
+  button { background:#2a2a2e; border:1px solid var(--line); color:var(--fg); border-radius:7px;
+           padding:7px 12px; font:inherit; cursor:pointer; }
+  button:hover { background:#35353a; }
+  button.pri { background:#3b82f6; border-color:#3b82f6; color:#fff; }
+  button.pri:hover { background:#2f74e0; }
+  .btns { display:flex; gap:8px; flex-wrap:wrap; }
+  #log { background:#0b0b0c; border:1px solid var(--line); border-radius:8px; padding:10px;
+         height:190px; overflow:auto; font:11px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;
+         white-space:pre-wrap; word-break:break-word; }
+  .ok{color:var(--ok)} .err{color:var(--err)} .warn{color:var(--warn)} .mut{color:var(--mut)}
+  details summary { cursor:pointer; color:var(--mut); font-size:12px; }
+  .grp { border-top:1px solid var(--line); margin-top:12px; padding-top:12px; }
+  .grp:first-of-type { border-top:0; margin-top:0; padding-top:0; }
+  .tag { display:inline-block; font-size:10px; padding:1px 6px; border-radius:99px;
+         background:#2a2a2e; color:var(--mut); margin-left:6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="stage"><canvas id="c" width="750" height="1624"></canvas></div>
+
+  <div class="panel">
+    <div class="card">
+      <h1>Year in Motion — Rive Test Harness</h1>
+      <p class="sub">Drives the <code>YearInMotion</code> view model at runtime.
+      Proves the <code>.riv</code> + data binding work with zero app code.</p>
+      <div class="btns">
+        <button class="pri" id="replay">Replay</button>
+        <button id="studioA">Studio A</button>
+        <button id="studioB">Studio B</button>
+        <button id="inspect">Dump view model</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Theme</h2>
+      <div class="row"><label>primary</label><input type="color" id="t_primary" value="#000000"></div>
+      <div class="row"><label>secondary</label><input type="color" id="t_secondary" value="#dedbbd"></div>
+      <div class="row"><label>background</label><input type="color" id="t_background" value="#ffffff"></div>
+      <div class="row"><label>foreground</label><input type="color" id="t_foreground" value="#000000"></div>
+    </div>
+
+    <div class="card">
+      <h2>Instructors</h2>
+      <div class="grp" data-slot="first">
+        <div class="row"><label>first <span class="tag">center</span></label></div>
+        <div class="row"><label>name</label><input type="text" class="i_name" value="Sam T."></div>
+        <div class="row"><label>classCount</label><input type="number" class="i_count" value="17"></div>
+        <div class="row"><label>image</label><input type="file" class="i_file" accept="image/*"></div>
+      </div>
+      <div class="grp" data-slot="second">
+        <div class="row"><label>second <span class="tag">right</span></label></div>
+        <div class="row"><label>name</label><input type="text" class="i_name" value="Dana W."></div>
+        <div class="row"><label>classCount</label><input type="number" class="i_count" value="21"></div>
+        <div class="row"><label>image</label><input type="file" class="i_file" accept="image/*"></div>
+      </div>
+      <div class="grp" data-slot="third">
+        <div class="row"><label>third <span class="tag">left</span></label></div>
+        <div class="row"><label>name</label><input type="text" class="i_name" value="Jess P."></div>
+        <div class="row"><label>classCount</label><input type="number" class="i_count" value="6"></div>
+        <div class="row"><label>image</label><input type="file" class="i_file" accept="image/*"></div>
+      </div>
+      <div class="grp">
+        <div class="row"><label>image URL</label><input type="url" id="imgUrl" placeholder="https://... (tests CORS + remote fetch)"></div>
+        <div class="btns">
+          <button id="applyUrlFirst">→ first</button>
+          <button id="applyUrlSecond">→ second</button>
+          <button id="applyUrlThird">→ third</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Log</h2>
+      <div id="log"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/@rive-app/webgl2@2"></script>
+<script>
+const RIV_URL = '../riv/testingyim2025.riv';
+const SM = 'State Machine 1';
+
+const logEl = document.getElementById('log');
+function log(msg, cls) {
+  const t = new Date().toISOString().slice(11,19);
+  logEl.insertAdjacentHTML('beforeend',
+    `<div class="${cls||''}">[${t}] ${String(msg).replace(/</g,'&lt;')}</div>`);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+window.addEventListener('error', e => log('window error: ' + e.message, 'err'));
+window.addEventListener('unhandledrejection', e => log('unhandled rejection: ' + e.reason, 'err'));
+
+// hex "#rrggbb" -> ARGB int (alpha forced opaque). Rive colors are packed ints, NOT hex strings.
+function hexToArgb(hex) {
+  const h = hex.replace('#','');
+  return ((0xFF << 24) | (parseInt(h.slice(0,2),16) << 16)
+        | (parseInt(h.slice(2,4),16) << 8) | parseInt(h.slice(4,6),16)) >>> 0;
+}
+
+let rive_, vmi;
+
+// Walk nested view models, e.g. nest(root,'topInstructor','first')
+function nest(root, ...segs) {
+  let cur = root;
+  for (const s of segs) {
+    if (!cur) throw new Error('null view model before "' + s + '"');
+    if (typeof cur.viewModel !== 'function') throw new Error('.viewModel() unavailable on this instance');
+    cur = cur.viewModel(s);
+    if (!cur) throw new Error('view model "' + s + '" not found');
+  }
+  return cur;
+}
+function setProp(vm, kind, name, value) {
+  const p = vm[kind] && vm[kind](name);
+  if (!p) throw new Error(`${kind}("${name}") not found`);
+  p.value = value;
+  return p;
+}
+
+function applyTheme() {
+  if (!vmi) return;
+  try {
+    const th = nest(vmi, 'theme');
+    for (const k of ['primary','secondary','background','foreground']) {
+      setProp(th, 'color', k, hexToArgb(document.getElementById('t_'+k).value));
+    }
+    log('theme applied', 'ok');
+  } catch (e) { log('theme failed: ' + e.message, 'err'); }
+}
+
+function applyInstructors() {
+  if (!vmi) return;
+  document.querySelectorAll('[data-slot]').forEach(grp => {
+    const slot = grp.dataset.slot;
+    try {
+      const vm = nest(vmi, 'topInstructor', slot);
+      setProp(vm, 'string', 'name', grp.querySelector('.i_name').value);
+      setProp(vm, 'number', 'classCount', Number(grp.querySelector('.i_count').value));
+    } catch (e) { log(`instructor "${slot}" failed: ` + e.message, 'err'); }
+  });
+  log('instructor text/counts applied', 'ok');
+}
+
+// THE HARD ONE: image properties need decoded bytes, not a URL.
+async function setImage(slot, bytes, label) {
+  try {
+    if (typeof rive.decodeImage !== 'function') {
+      log('rive.decodeImage() not available in this runtime build — check the API name', 'err');
+      return;
+    }
+    const img = await rive.decodeImage(new Uint8Array(bytes));
+    const vm = nest(vmi, 'topInstructor', slot);
+    const p = vm.image && vm.image('image');
+    if (!p) { log(`image("image") not found on ${slot}`, 'err'); return; }
+    p.value = img;
+    log(`image set on "${slot}" (${label}, ${bytes.byteLength} bytes)`, 'ok');
+  } catch (e) { log(`image on "${slot}" failed: ` + e.message, 'err'); }
+}
+
+document.querySelectorAll('[data-slot]').forEach(grp => {
+  grp.querySelector('.i_file').addEventListener('change', async ev => {
+    const f = ev.target.files[0]; if (!f) return;
+    await setImage(grp.dataset.slot, await f.arrayBuffer(), f.name);
+  });
+});
+for (const [id, slot] of [['applyUrlFirst','first'],['applyUrlSecond','second'],['applyUrlThird','third']]) {
+  document.getElementById(id).addEventListener('click', async () => {
+    const url = document.getElementById('imgUrl').value.trim();
+    if (!url) { log('enter an image URL first', 'warn'); return; }
+    const t0 = performance.now();
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const buf = await res.arrayBuffer();
+      log(`fetched ${url} in ${Math.round(performance.now()-t0)}ms`, 'mut');
+      await setImage(slot, buf, 'remote');
+    } catch (e) { log('remote image failed (CORS?): ' + e.message, 'err'); }
+  });
+}
+
+const PRESETS = {
+  A: { primary:'#000000', secondary:'#dedbbd', background:'#ffffff', foreground:'#000000' },
+  B: { primary:'#000000', secondary:'#2f3134', background:'#000000', foreground:'#ffffff' },
+};
+function preset(k) {
+  const p = PRESETS[k];
+  for (const key in p) document.getElementById('t_'+key).value = p[key];
+  applyTheme(); log('preset Studio ' + k, 'mut');
+}
+document.getElementById('studioA').onclick = () => preset('A');
+document.getElementById('studioB').onclick = () => preset('B');
+
+['t_primary','t_secondary','t_background','t_foreground'].forEach(id =>
+  document.getElementById(id).addEventListener('input', applyTheme));
+document.querySelectorAll('.i_name, .i_count').forEach(el =>
+  el.addEventListener('input', applyInstructors));
+
+document.getElementById('replay').onclick = () => {
+  try {
+    rive_.reset({ stateMachines: SM, autoplay: true });
+    rive_.play();
+    // GOTCHA: reset() builds a NEW view model instance. The old reference goes
+    // stale and writes to it are silently ignored — re-acquire it, then re-apply
+    // all data. Images must be re-applied too; they do not survive a reset.
+    setTimeout(() => {
+      vmi = rive_.viewModelInstance;
+      if (!vmi) { log('viewModelInstance null after reset', 'err'); return; }
+      // reset() builds a new artboard that is NOT attached to the view model.
+      // Without this rebind the data is set but nothing renders.
+      rive_.bindViewModelInstance(vmi);
+      applyTheme(); applyInstructors();
+      log('replayed + rebound', 'mut');
+    }, 50);
+  } catch (e) { log('replay failed: ' + e.message, 'err'); }
+};
+
+document.getElementById('inspect').onclick = () => {
+  if (!vmi) { log('no view model instance', 'err'); return; }
+  log('--- view model instance ---', 'mut');
+  const proto = Object.getPrototypeOf(vmi);
+  log('methods: ' + Object.getOwnPropertyNames(proto).filter(n => n !== 'constructor').join(', '), 'mut');
+  try {
+    const ti = nest(vmi, 'topInstructor');
+    log('topInstructor resolved OK', 'ok');
+    for (const s of ['first','second','third']) {
+      const vm = nest(ti, s);
+      log(`  ${s}: name="${vm.string('name').value}" classCount=${vm.number('classCount').value}`, 'ok');
+    }
+  } catch (e) { log('nested walk failed: ' + e.message, 'err'); }
+  try {
+    const th = nest(vmi, 'theme');
+    log(`theme: primary=${th.color('primary').value} secondary=${th.color('secondary').value} bg=${th.color('background').value} fg=${th.color('foreground').value}`, 'ok');
+  } catch (e) { log('theme walk failed: ' + e.message, 'err'); }
+};
+
+log('runtime: @rive-app/webgl2@2 — ' + (typeof rive !== 'undefined' ? 'loaded' : 'FAILED TO LOAD'),
+    typeof rive !== 'undefined' ? 'ok' : 'err');
+log('loading ' + RIV_URL + ' ...', 'mut');
+
+rive_ = new rive.Rive({
+  src: RIV_URL,
+  canvas: document.getElementById('c'),
+  autoplay: true,
+  stateMachines: SM,
+  autoBind: true,
+  layout: new rive.Layout({ fit: rive.Fit.Contain, alignment: rive.Alignment.Center }),
+  onLoad: () => {
+    log('.riv loaded', 'ok');
+    rive_.resizeDrawingSurfaceToCanvas();
+    vmi = rive_.viewModelInstance;
+    if (!vmi) {
+      log('viewModelInstance is null — autoBind may not have attached a default instance. ' +
+          'Check that the artboard has a default YearInMotion instance assigned.', 'err');
+      return;
+    }
+    log('view model instance bound', 'ok');
+    applyTheme(); applyInstructors();
+  },
+  onLoadError: e => log('.riv FAILED to load: ' + e, 'err'),
+});
+</script>
+</body>
+</html>
