@@ -51,8 +51,10 @@ tap-to-advance navigation and will need to change — see
 
 ## Before you start
 
-1. Confirm the Rive plan allows `.riv` export. **Currently blocked.** Nothing can
-   proceed without this.
+1. Run the browser harness — see [harness/](../harness/README.md). It loads the
+   committed `.riv` and drives the whole data contract with zero app code, so it
+   is the fastest way to see what you are integrating against.
 2. Read [integration-constraints.md](integration-constraints.md).
-3. Run the spike in [spike-plan.md](spike-plan.md) in order. Steps 1–2 are
-   go/no-go for the whole approach — do not build feature code before they pass.
+3. Run the spike in [spike-plan.md](spike-plan.md) in order. Step 0 is already
+   done; **start at Step 1**. Steps 1–2 are go/no-go for the whole approach — do
+   not build feature code before they pass.

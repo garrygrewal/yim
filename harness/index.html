@@ -53,7 +53,9 @@
     <div class="card">
       <h1>Year in Motion — Rive Test Harness</h1>
       <p class="sub">Drives the <code>YearInMotion</code> view model at runtime.
-      Proves the <code>.riv</code> + data binding work with zero app code.</p>
+      Proves the <code>.riv</code> + data binding work with zero app code.
+      <strong>Studio A / B</strong> swap a whole payload — theme, names and counts —
+      the way the app will.</p>
       <div class="btns">
         <button class="pri" id="replay">Replay</button>
         <button id="studioA">Studio A</button>
@@ -107,7 +109,9 @@
   </div>
 </div>
 
-<script src="https://unpkg.com/@rive-app/webgl2@2"></script>
+<!-- Pinned deliberately. "@2" floats across minors, so an upstream change could
+     silently invalidate the "Verified working" table in harness/README.md. -->
+<script src="https://unpkg.com/@rive-app/webgl2@2.42.0"></script>
 <script>
 const RIV_URL = '../riv/testingyim2025.riv';
 const SM = 'State Machine 1';
@@ -210,14 +214,43 @@ for (const [id, slot] of [['applyUrlFirst','first'],['applyUrlSecond','second'],
   });
 }
 
+// Full studio payloads — theme AND instructors. Switching between these is the
+// runtime equivalent of the app handing us a different studio's data, which is
+// what spike-plan.md Step 3 asks us to prove. The editor's "Studio A/B" view model
+// instances share the same three instructors, so they only ever exercised theming.
+//
+// Studio B's values are deliberately awkward: a long name and a short one to push
+// the shrink-to-fit pillar text, and a 3-digit count to check the number renders
+// without a decimal and still fits. See integration-constraints.md section 8.
 const PRESETS = {
-  A: { primary:'#000000', secondary:'#dedbbd', background:'#ffffff', foreground:'#000000' },
-  B: { primary:'#000000', secondary:'#2f3134', background:'#000000', foreground:'#ffffff' },
+  A: {
+    theme: { primary:'#000000', secondary:'#dedbbd', background:'#ffffff', foreground:'#000000' },
+    instructors: {
+      first:  { name:'Sam T.',  count:17 },
+      second: { name:'Dana W.', count:21 },
+      third:  { name:'Jess P.', count:6  },
+    },
+  },
+  B: {
+    theme: { primary:'#000000', secondary:'#2f3134', background:'#000000', foreground:'#ffffff' },
+    instructors: {
+      first:  { name:'Bartholomew Q.', count:132 },
+      second: { name:'Wei L.',         count:8   },
+      third:  { name:'Priyanka R.',    count:47  },
+    },
+  },
 };
 function preset(k) {
   const p = PRESETS[k];
-  for (const key in p) document.getElementById('t_'+key).value = p[key];
-  applyTheme(); log('preset Studio ' + k, 'mut');
+  for (const key in p.theme) document.getElementById('t_'+key).value = p.theme[key];
+  document.querySelectorAll('[data-slot]').forEach(grp => {
+    const v = p.instructors[grp.dataset.slot];
+    if (!v) return;
+    grp.querySelector('.i_name').value  = v.name;
+    grp.querySelector('.i_count').value = v.count;
+  });
+  applyTheme(); applyInstructors();
+  log('preset Studio ' + k + ' — theme + instructors', 'mut');
 }
 document.getElementById('studioA').onclick = () => preset('A');
 document.getElementById('studioB').onclick = () => preset('B');
@@ -265,7 +298,7 @@ document.getElementById('inspect').onclick = () => {
   } catch (e) { log('theme walk failed: ' + e.message, 'err'); }
 };
 
-log('runtime: @rive-app/webgl2@2 — ' + (typeof rive !== 'undefined' ? 'loaded' : 'FAILED TO LOAD'),
+log('runtime: @rive-app/webgl2@2.42.0 (pinned) — ' + (typeof rive !== 'undefined' ? 'loaded' : 'FAILED TO LOAD'),
     typeof rive !== 'undefined' ? 'ok' : 'err');
 log('loading ' + RIV_URL + ' ...', 'mut');
 

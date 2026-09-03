@@ -80,9 +80,14 @@ Two `YearInMotion` instances exist for editor testing:
 | `Studio B` | Dark Studio | Sam T. (17) / Dana W. (21) / Jess P. (6) |
 
 Note both studios currently reference the **same three instructors**, so
-switching between them only exercises theming. Each now has its own
+switching between them *in the editor* only exercises theming. Each has its own
 `TopInstructor` instance (`Studio A Instructors` / `Studio B Instructors`), so
-they can be given different instructors to make the A/B switch a fuller test.
+they can be given different instructors if a fuller in-editor test is wanted.
+
+This matters less than it looks: these instances are editor-side fixtures and the
+app never uses them. The runtime payload switch that Step 3 of the spike actually
+cares about is covered by the harness, whose **Studio A / Studio B** buttons swap
+theme, names and counts together.
 
 ## Known cleanup — outstanding
 

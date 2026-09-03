@@ -8,14 +8,20 @@ The purpose of this spike is to answer one question: *can we build the rest of
 Year in Motion in Rive, in a WebView, without discovering a blocker halfway
 through?* Optimise for killing the approach fast, not for polish.
 
+**Timebox: 5 engineering days.** If Steps 1–2 are not both green by day 2, that
+is itself the answer — stop and write up Step 6. Overrunning the box to make Rive
+work is the failure mode this plan exists to prevent.
+
 ---
 
-## Step 0 — Unblock export
+## Step 0 — Unblock export ✅ Done
 
-**Blocker.** `.riv` export is gated on the Rive workspace plan. Nothing below can
-start until a runtime file exists.
+`.riv` export was gated on the Rive workspace plan. **Resolved** — exported
+2025-08-28 and committed to `riv/testingyim2025.riv`.
 
-Pass: a `.riv` is exported and committed to `riv/`.
+Data binding has also since been validated in a desktop browser via
+[harness/](../harness/README.md): the nested view model, theming, text, counts and
+runtime image decoding all work. **Start at Step 1.**
 
 ## Step 1 — WASM runs in our WebView
 
@@ -25,7 +31,14 @@ Load the Rive web runtime in the app's WebView, exactly as the real feature woul
 (same WebView config, same CSP, same local-vs-hosted content strategy) and render
 the `.riv` with its default placeholder data. No data binding yet.
 
-Pass: the animation plays on a real iOS device and a real Android device.
+**Serve the runtime JS, the WASM binary and the `.riv` from the origin production
+will use** — bundled local content if that is the plan, otherwise the real hosted
+origin. Do **not** copy the harness here: it pulls the runtime from a CDN
+(unpkg), which is precisely the arrangement that will not survive the app's CSP.
+Loading from a CDN proves nothing about this step.
+
+Pass: the animation plays on a real iOS device and a real Android device, with
+the production CSP in force.
 
 Fail: WASM won't instantiate, CSP blocks it, or the binary can't be fetched from
 the WebView's origin. → Rive in a WebView is not viable; evaluate native runtimes
@@ -36,8 +49,10 @@ instead, which is a different and larger project.
 **Go/no-go.** The highest-risk integration item — see
 [integration-constraints.md](integration-constraints.md#1-instructor-images--the-hard-one).
 
-Fetch three real instructor photos over the network, decode them, and bind them
-to `instructorImage` on all three pillars.
+Fetch three real instructor photos over the network, decode them via
+`rive.decodeImage(...)`, and bind them to the `image` property on `first`,
+`second` and `third`. These are **cross-origin** fetches, which the harness never
+exercised — expect to need CORS headers on the photo origin.
 
 Pass: three different photos render in the three pillars, sourced at runtime.
 
@@ -83,6 +98,32 @@ Pass: two screens play in sequence with working tap navigation.
 ## Step 6 — Decide
 
 Write up the results and make an explicit call: continue in Rive, or stop.
+
+The question is not "does Rive work" — it is **"is Rive better than the Lottie
+setup we already have"**. Fill this in with real numbers before deciding:
+
+| Measure | Lottie (2024, baseline) | Rive (measured) | Verdict |
+|---|---|---|---|
+| Payload over the wire (runtime + WASM + asset) | | | |
+| Time from screen open to first frame, low-end Android | | | |
+| Sustained fps through a screen, low-end Android | | | |
+| Memory with 3 decoded images loaded | | | |
+| Engineering effort to add one new screen | | | |
+| Designer effort to change one screen, export to shipped | | | |
+| Blockers hit that have no workaround | | | |
+
+Suggested thresholds — agree these **before** measuring, not after:
+
+- **Stop** if any Step 1–2 blocker has no workaround.
+- **Stop** if sustained fps on the target low-end device is materially worse than
+  the Lottie baseline, or first frame is more than ~500ms slower.
+- **Continue** only if the data binding win (real white-labelling, no JSON
+  patching) is worth the WASM dependency, the opaque binary, and the coupled
+  single-file designer workflow described in
+  [sequencing.md](sequencing.md#the-costs-honestly).
+
+If no Lottie baseline numbers exist, measure last year's build on the same device
+first. A comparison against a remembered impression is not a comparison.
 
 Decide deliberately. The cost of discovering a blocker after building six
 animations is far higher than the cost of this spike.

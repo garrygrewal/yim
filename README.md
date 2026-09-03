@@ -18,7 +18,7 @@ binding API.
 | `.riv` export | Exported 2025-08-28 → `riv/testingyim2025.riv` |
 | Multi-screen sequencing / navigation | Not started — **needs an authored Rive Event** (tested) |
 | Browser harness | Working — see [harness/](harness/README.md) |
-| WebView spike | Not started — see [spike-plan.md](docs/spike-plan.md) |
+| WebView spike | Not started — see [spike-plan.md](docs/spike-plan.md) (Step 0 done, start at Step 1) |
 
 Data binding is now **validated in a desktop browser** via `harness/` — the
 nested view model, theming, text, counts and runtime image decoding all work.

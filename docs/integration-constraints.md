@@ -2,11 +2,15 @@
 
 Known limitations and hard problems. **Read before spiking.**
 
-Everything here is derived from inspecting the Rive file and from general Rive
-runtime behaviour. None of it has been validated against our app yet — the `.riv`
-cannot be exported (see [Plan gating](#5-riv-export-is-plan-gated)). Treat each
-item as a hypothesis the spike is designed to confirm or kill, and verify API
-specifics against current Rive documentation rather than trusting this file.
+Originally derived from inspecting the Rive file and from general Rive runtime
+behaviour. Several items have since been **validated in a desktop browser** via
+[harness/](../harness/README.md), and are marked **Validated** below.
+
+What remains unproven is behaviour inside the app's **WebView** — WASM
+instantiation and CSP — which is still the go/no-go item in
+[spike-plan.md](spike-plan.md). Treat anything not marked Validated as a
+hypothesis the spike is designed to confirm or kill, and verify API specifics
+against current Rive documentation rather than trusting this file.
 
 ---
 
@@ -14,8 +18,8 @@ specifics against current Rive documentation rather than trusting this file.
 
 **This is the item most likely to cost real time. Spike it first.**
 
-`instructorImage` is a Rive **image** property, not a URL string. You cannot hand
-Rive a CDN link. The runtime needs actual decoded image data.
+`image`, on each `Instructor`, is a Rive **image** property, not a URL string. You
+cannot hand Rive a CDN link. The runtime needs actual decoded image data.
 
 Roughly, per instructor, the app must:
 
@@ -26,9 +30,13 @@ Roughly, per instructor, the app must:
 With Lottie we could base64-embed images directly in the JSON. That option does
 not exist here.
 
-Open questions to answer during the spike:
+**Validated in the harness.** The decode path is
+`await rive.decodeImage(new Uint8Array(bytes))` — async, takes raw bytes — and the
+result assigns to `instructorVm.image('image').value`. It renders. Decoded images
+do **not** survive a `reset()` and must be re-applied.
 
-- What exactly does the web runtime's image decode API accept, and is it async?
+Open questions still to answer during the spike:
+
 - What happens on the artboard before an image resolves — placeholder, blank, or
   the design-time asset?
 - What happens if a fetch fails, or the studio has no photo for an instructor?
@@ -51,6 +59,9 @@ Verify early:
 - If the WebView loads **bundled local content** rather than a hosted URL, the
   WASM file can still be fetched — this is a common failure with `file://`
   origins
+- The runtime and WASM load from **the origin production will use**. The harness
+  pulls both from a CDN (unpkg), so it proves nothing about CSP or bundled
+  origins — the two things most likely to fail here
 - The WASM binary's size is acceptable in the app bundle or over the network
 
 **This is go/no-go for the entire WebView approach.** If WASM can't run in our
@@ -79,16 +90,20 @@ Whatever supplies white-label studio colors will almost certainly hand us hex or
 CSS strings, so a conversion layer is needed. Include the alpha byte — omitting
 it yields a fully transparent color and a silently blank screen.
 
-## 5. `.riv` export is plan-gated
+**Validated in the harness.** Note colors also read back **signed**: `#FF000000`
+goes in as `4278190080` and comes out as `-16777216`. Same 32 bits. Normalise
+with `>>> 0` before comparing.
 
-Attempting an export currently returns:
+## 5. `.riv` export is plan-gated — resolved
 
-    exportRiv is not available on this workspace's plan
+Export was previously blocked on this workspace (`exportRiv is not available on
+this workspace's plan`), which gated `.riv` and `.rev` together and blocked every
+downstream step.
 
-Both `.riv` (runtime) and `.rev` (backup) are gated together on this workspace.
-**No runtime file can be produced until this is resolved**, which blocks every
-downstream step. Confirm the required tier and cost directly with Rive — do not
-assume a specific plan from documentation that may be out of date.
+**This is resolved** — a runtime file was exported on 2025-08-28 and is committed
+at `riv/testingyim2025.riv`. Recorded here because it stays a live cost: the
+workspace must remain on an export-capable tier for the life of the project, or
+no design change can ship.
 
 ## 6. Fixed artboard size
 

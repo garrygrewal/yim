@@ -11,11 +11,21 @@ Standalone browser harness that loads `riv/testingyim2025.riv` and drives the
 Must be served over HTTP — opening `index.html` from `file://` will fail to fetch
 the `.riv` and the WASM binary.
 
-Runtime is pulled from a CDN: `@rive-app/webgl2@2`.
+Runtime is pulled from a CDN, **pinned** to `@rive-app/webgl2@2.42.0`. The pin is
+deliberate — `@2` floats across minors, and every result below was measured
+against this exact version. If you bump it, re-run the checks in the table.
+
+Note the CDN: this harness proves nothing about the app's CSP or about loading
+the runtime from a bundled origin. Step 1 of the spike must serve the runtime,
+the WASM and the `.riv` the way production will.
 
 ## What it does
 
 - Loads the `.riv` and auto-binds the `YearInMotion` view model
+- **Studio A / Studio B** swap a whole studio payload at runtime — theme *and*
+  names *and* counts — which is what the app will actually do. Studio B carries
+  deliberately awkward values (a long name, a short one, a 3-digit count) to push
+  the shrink-to-fit pillar text
 - Live-edits all four `theme` colors (hex is converted to the ARGB ints Rive needs)
 - Live-edits `name` and `classCount` for `first` / `second` / `third`
 - Sets `image` from a local file **or** a remote URL (exercises fetch + decode + CORS)
@@ -24,7 +34,8 @@ Runtime is pulled from a CDN: `@rive-app/webgl2@2`.
 
 ## Verified working
 
-Tested in a Chromium browser against the 2025-08-28 export:
+Tested in a Chromium browser, `@rive-app/webgl2@2.42.0`, against the 2025-08-28
+export:
 
 | Behaviour | Result |
 |---|---|
@@ -35,6 +46,7 @@ Tested in a Chromium browser against the 2025-08-28 export:
 | `string()` / `number()` / `color()` get + set | works |
 | `rive.decodeImage()` + assigning to an image property | works, renders |
 | Remote image fetch -> decode -> bind | works (same-origin) |
+| Full payload swap (Studio A <-> Studio B) | works — theme, names and counts all change |
 
 The nested restructure is confirmed good at runtime:
 
@@ -92,6 +104,10 @@ image references around rather than re-fetching per replay.
 - **Frame-accurate animation timing.** The automated browser used for testing
   throttles `requestAnimationFrame`, so visual timing checks were unreliable.
   Verify the 9-second sequence by eye in a normal browser.
+- **Text overflow with the long Studio B names.** The values are set correctly at
+  the data layer, but whether `Bartholomew Q.` actually fits the 96px pillar was
+  not visually confirmed, for the same rAF reason. Check by eye — see
+  [integration-constraints.md](../docs/integration-constraints.md#8-text-overflow-with-real-data).
 - **Cross-origin image fetches.** Only same-origin was tested. Real instructor
   photos will come from another origin and need CORS headers.
 - Performance on low-end mobile hardware.
