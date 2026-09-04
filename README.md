@@ -1,7 +1,7 @@
-# Year in Motion
+# YIM
 
-Rive-based animated "Year in Motion" experience for Mariana Tek, rendered in a
-WebView inside the consumer mobile app.
+Rive-based animated YIM experience, rendered in a WebView inside the consumer
+mobile app.
 
 This replaces the Lottie JSON approach used in the previous year. The goal is a
 white-label experience: Engineering loads a compiled `.riv` file and supplies

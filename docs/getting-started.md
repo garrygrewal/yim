@@ -1,7 +1,7 @@
 # Getting Started
 
 For engineers picking this up. Assumes you worked on (or have seen) last year's
-Lottie-based Year in Motion.
+Lottie-based YIM.
 
 ## What this is
 

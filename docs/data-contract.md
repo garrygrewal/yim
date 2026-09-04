@@ -3,6 +3,11 @@
 The view model API Engineering codes against. Rive data binding drives everything
 dynamic; the `.riv` ships with placeholder content only.
 
+The root view model is named `YearInMotion` in the file. That name is compiled
+into the `.riv` and is what the runtime looks up, so it is kept verbatim here and
+in the harness. Changing it means renaming the view model in the Rive editor and
+re-exporting.
+
 ## Structure
 
     YearInMotion                      <- bound to artboard "Artboard" (375x812)

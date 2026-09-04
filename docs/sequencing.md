@@ -1,6 +1,6 @@
 # Multi-Screen Sequencing & Navigation
 
-How the individual animated screens compose into the full Year in Motion story.
+How the individual animated screens compose into the full YIM story.
 
 ## Target behaviour
 
@@ -85,7 +85,7 @@ requirements ever soften.
 
 **Recommendation: one `.riv`, one artboard per screen.**
 
-    YearInMotion.riv
+    yim.riv
     |
     +-- view models
     |   +-- YearInMotion
@@ -114,7 +114,7 @@ whenever `Theme` changes.
 
 Other reasons one file wins here:
 
-- A member's Year in Motion is **one payload**. One view model instance maps to
+- A member's YIM is **one payload**. One view model instance maps to
   it directly.
 - Fonts and shared assets are embedded once, not once per file.
 - Host wiring is far simpler: acquire one instance, set all data, swap artboards.

@@ -1,11 +1,11 @@
 # Spike Plan
 
-Ordered validation before committing to Rive for the full Year in Motion
+Ordered validation before committing to Rive for the full YIM
 experience. **Run in order.** Steps 1–2 are go/no-go for the whole approach —
 stop and reassess if either fails.
 
 The purpose of this spike is to answer one question: *can we build the rest of
-Year in Motion in Rive, in a WebView, without discovering a blocker halfway
+YIM in Rive, in a WebView, without discovering a blocker halfway
 through?* Optimise for killing the approach fast, not for polish.
 
 **Timebox: 5 engineering days.** If Steps 1–2 are not both green by day 2, that
